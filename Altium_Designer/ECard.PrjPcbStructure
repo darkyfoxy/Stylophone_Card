@@ -1,0 +1,4 @@
+Record=TopLevelDocument|FileName=Audio.SchDoc|SheetNumber=4
+Record=NoMainPathDocument|SourceDocument=Audio.SchDoc|FileName=Connectors.SchDoc|SheetNumber=2
+Record=NoMainPathDocument|SourceDocument=Audio.SchDoc|FileName=CPU.SchDoc|SheetNumber=1
+Record=NoMainPathDocument|SourceDocument=Audio.SchDoc|FileName=Power.SchDoc|SheetNumber=3
