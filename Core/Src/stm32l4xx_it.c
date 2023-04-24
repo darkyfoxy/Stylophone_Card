@@ -22,6 +22,7 @@
 #include "stm32l4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "ecard.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,10 +56,11 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern DMA_HandleTypeDef hdma_dac_ch1;
 /* USER CODE BEGIN EV */
-extern uint32_t saund_buff_0 [BUF_SIZE];
-extern uint32_t saund_buff_1 [BUF_SIZE];
+extern uint32_t saund_buff_0 [BUFF_SIZE];
+extern uint32_t saund_buff_1 [BUFF_SIZE];
 extern DAC_HandleTypeDef hdac1;
 extern uint8_t buf_flaf;
 extern uint8_t empty_buf_flaf;
@@ -217,14 +219,28 @@ void DMA1_Channel3_IRQHandler(void)
 	  empty_buf_flaf = 0;
 	 if (buf_flaf == 0){
 		  buf_flaf = 1;
-		  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, saund_buff_1, BUF_SIZE, DAC_ALIGN_12B_R);
+		  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, saund_buff_1, BUFF_SIZE, DAC_ALIGN_12B_R);
 	  }
 	  else{
 		  buf_flaf = 0;
-		  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, saund_buff_0, BUF_SIZE, DAC_ALIGN_12B_R);
+		  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, saund_buff_0, BUFF_SIZE, DAC_ALIGN_12B_R);
 	  }
   }
   /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USB OTG FS global interrupt.
+  */
+void OTG_FS_IRQHandler(void)
+{
+  /* USER CODE BEGIN OTG_FS_IRQn 0 */
+
+  /* USER CODE END OTG_FS_IRQn 0 */
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+  /* USER CODE BEGIN OTG_FS_IRQn 1 */
+
+  /* USER CODE END OTG_FS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

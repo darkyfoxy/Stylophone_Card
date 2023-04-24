@@ -11,6 +11,7 @@
 #include "stm32l4xx_hal.h"
 
 
+
 #define Am     GPIO_PIN_10
 #define Ashm   GPIO_PIN_11
 #define Bm     GPIO_PIN_9
@@ -108,5 +109,8 @@ typedef struct _ecard {
 
 
 int ecard_init(ecard_t *ecard);
+
+
+
 
 #endif /* INC_KEYBOARD_H_ */

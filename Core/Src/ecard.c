@@ -6,13 +6,15 @@
  */
 #include <stdio.h>
 #include "stm32l4xx_hal.h"
+#include "main.h"
 #include "ecard.h"
 
+extern  uint16_t usb_buff [BUFF_SIZE];
 
 static int full_buffer(ecard_t *ecard, uint32_t *p_fubber, uint8_t note, uint16_t buff_size){
 	if(note == PAUSE){
 		for (int i = 0; i < buff_size; i++){
-				  p_fubber[i] = 1500;
+				  p_fubber[i] = 1500 + usb_buff[i];
 		}
 	}
 	else{
@@ -21,7 +23,7 @@ static int full_buffer(ecard_t *ecard, uint32_t *p_fubber, uint8_t note, uint16_
 		uint8_t form_size = ecard->notes_table->size[note];
 
 		for (int i = 0; i < buff_size; i++){
-		  p_fubber[i] = 1500 + note_form[sampl_index];
+		  p_fubber[i] = 1500 + note_form[sampl_index] + usb_buff[i];
 		  sampl_index++;
 
 		  if(sampl_index == form_size){

@@ -118,7 +118,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
-#define BUF_SIZE 1000
+#define BUFF_SIZE 1152
+
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

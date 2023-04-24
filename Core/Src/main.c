@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -52,18 +53,19 @@ TIM_HandleTypeDef htim5;
 
 USART_HandleTypeDef husart1;
 
-PCD_HandleTypeDef hpcd_USB_OTG_FS;
-
 /* USER CODE BEGIN PV */
 ecard_t ecard = {0};
 
-uint32_t saund_buff_0 [BUF_SIZE];
-uint32_t saund_buff_1 [BUF_SIZE];
+uint16_t usb_buff [BUFF_SIZE];
+
+uint32_t saund_buff_0 [BUFF_SIZE];
+uint32_t saund_buff_1 [BUFF_SIZE];
 uint8_t buf_flaf;
 uint8_t empty_buf_flaf;
 int count;
 uint8_t note;
 uint8_t pre_note;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,7 +77,6 @@ static void MX_TIM5_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART1_Init(void);
-static void MX_USB_OTG_FS_PCD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -119,7 +120,7 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_USART1_Init();
-  MX_USB_OTG_FS_PCD_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   ecard_init(&ecard);
 
@@ -246,10 +247,10 @@ int main(void)
 
 
 	    	if(buf_flaf == 0){
-			  ecard.full_buffer(&ecard, saund_buff_1, note, BUF_SIZE);
+			  ecard.full_buffer(&ecard, saund_buff_1, note, BUFF_SIZE);
 			}
 			else{
-			  ecard.full_buffer(&ecard, saund_buff_0, note, BUF_SIZE);
+			  ecard.full_buffer(&ecard, saund_buff_0, note, BUFF_SIZE);
 			}
 
 
@@ -488,7 +489,7 @@ static void MX_TIM5_Init(void)
   htim5.Instance = TIM5;
   htim5.Init.Prescaler = 0;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 1999;
+  htim5.Init.Period = 1666;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
@@ -543,41 +544,6 @@ static void MX_USART1_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
-
-}
-
-/**
-  * @brief USB_OTG_FS Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USB_OTG_FS_PCD_Init(void)
-{
-
-  /* USER CODE BEGIN USB_OTG_FS_Init 0 */
-
-  /* USER CODE END USB_OTG_FS_Init 0 */
-
-  /* USER CODE BEGIN USB_OTG_FS_Init 1 */
-
-  /* USER CODE END USB_OTG_FS_Init 1 */
-  hpcd_USB_OTG_FS.Instance = USB_OTG_FS;
-  hpcd_USB_OTG_FS.Init.dev_endpoints = 6;
-  hpcd_USB_OTG_FS.Init.speed = PCD_SPEED_FULL;
-  hpcd_USB_OTG_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
-  hpcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.battery_charging_enable = ENABLE;
-  hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
-  hpcd_USB_OTG_FS.Init.vbus_sensing_enable = ENABLE;
-  if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USB_OTG_FS_Init 2 */
-
-  /* USER CODE END USB_OTG_FS_Init 2 */
 
 }
 
