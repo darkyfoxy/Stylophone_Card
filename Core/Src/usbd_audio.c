@@ -104,6 +104,7 @@ EndBSPDependencies */
 
 uint16_t test[48] = {0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000, 15500, 16000, 16500, 17000, 17500, 18000, 18500, 19000, 19500, 20000, 20500, 21000, 21500, 22000, 22500, 23000, 23500};
 uint16_t test1[48] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint16_t debug;
 /** @defgroup USBD_AUDIO_Private_FunctionPrototypes
   * @{
   */
@@ -503,7 +504,9 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 
 	    /* Prepare Out endpoint to receive 1st packet */
 	    USBD_LL_PrepareReceive (pdev, AUDIO_OUT_EP, haudio->out.buff, AUDIO_OUT_PACKET);
+
 	  }
+	  debug = 0;
 	  return USBD_OK;
 }
 
@@ -778,7 +781,7 @@ static uint8_t USBD_AUDIO_SOF(USBD_HandleTypeDef *pdev)
 	    haudio->in.wr_ptr = 0;
 	    haudio->in.buff_enable = 1U;
 
-
+	    debug++;
 	    USBD_LL_FlushEP (pdev, AUDIO_IN_EP);
 
 	    USBD_LL_Transmit (pdev, AUDIO_IN_EP, haudio->in.buff, AUDIO_OUT_PACKET);
@@ -809,10 +812,35 @@ void USBD_AUDIO_Sync(USBD_HandleTypeDef *pdev, AUDIO_OffsetTypeDef offset)
   */
 static uint8_t USBD_AUDIO_IsoINIncomplete(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  UNUSED(pdev);
-  UNUSED(epnum);
+	USBD_AUDIO_HandleTypeDef *haudio;
+		  uint8_t retval = USBD_OK;
 
-  return (uint8_t)USBD_OK;
+		  haudio = (USBD_AUDIO_HandleTypeDef*) pdev->pClassData;
+
+		  if (epnum == (AUDIO_IN_EP & 0x7F))
+		  {
+			haudio->in.rd_ptr += AUDIO_OUT_PACKET;
+
+		    if (haudio->in.rd_ptr == AUDIO_TOTAL_BUF_SIZE)
+		    {
+		      ((USBD_AUDIO_ItfTypeDef *) pdev->pUserData)->AudioCmd (&haudio->in.buff[0],
+		    		  	  	  	  	  	  	  	  	  	  	  	  	  AUDIO_TOTAL_BUF_SIZE,
+		                                                             AUDIO_CMD_RECORD);
+
+		    }
+
+
+		    if (haudio->in.rd_ptr == AUDIO_TOTAL_BUF_SIZE)
+		    {
+		      haudio->in.rd_ptr = 0U;
+		    }
+
+		    USBD_LL_FlushEP (pdev, AUDIO_IN_EP);
+
+		    USBD_LL_Transmit (pdev, AUDIO_IN_EP, &haudio->in.buff[haudio->in.rd_ptr], AUDIO_OUT_PACKET);
+		  }
+
+		  return retval;
 }
 /**
   * @brief  USBD_AUDIO_IsoOutIncomplete
@@ -823,10 +851,27 @@ static uint8_t USBD_AUDIO_IsoINIncomplete(USBD_HandleTypeDef *pdev, uint8_t epnu
   */
 static uint8_t USBD_AUDIO_IsoOutIncomplete(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  UNUSED(pdev);
-  UNUSED(epnum);
+	USBD_AUDIO_HandleTypeDef *haudio;
+		  haudio = (USBD_AUDIO_HandleTypeDef*) pdev->pClassData;
 
-  return (uint8_t)USBD_OK;
+		  if (epnum == AUDIO_OUT_EP)
+		  {
+		    haudio->out.wr_ptr += AUDIO_OUT_PACKET;
+
+		    if (haudio->out.wr_ptr == AUDIO_TOTAL_BUF_SIZE)
+		    {
+		      /* All buffers are full: roll back */
+		      haudio->out.wr_ptr = 0U;
+
+		      ((USBD_AUDIO_ItfTypeDef*) pdev->pUserData)->AudioCmd (&haudio->out.buff[0],
+		                                                            AUDIO_TOTAL_BUF_SIZE,
+		                                                            AUDIO_CMD_PLAY);
+		    }
+		    /* Prepare Out endpoint to receive next audio packet */
+		    USBD_LL_PrepareReceive (pdev, AUDIO_OUT_EP, &haudio->out.buff[haudio->out.wr_ptr], AUDIO_OUT_PACKET);
+		  }
+
+		  return USBD_OK;
 }
 /**
   * @brief  USBD_AUDIO_DataOut
