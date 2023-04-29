@@ -124,6 +124,7 @@ typedef enum
   AUDIO_CMD_START = 1,
   AUDIO_CMD_PLAY,
   AUDIO_CMD_STOP,
+  AUDIO_CMD_RECORD,
 } AUDIO_CMD_TypeDef;
 
 
@@ -153,12 +154,17 @@ typedef struct
 
 typedef struct
 {
-  uint32_t alt_setting;
-  uint8_t buffer[AUDIO_TOTAL_BUF_SIZE];
-  AUDIO_OffsetTypeDef offset;
-  uint8_t rd_enable;
+  uint8_t  buff [AUDIO_TOTAL_BUF_SIZE];
+  uint8_t  buff_enable;
   uint16_t rd_ptr;
   uint16_t wr_ptr;
+} USBD_AUDIO_Buff_TypeDef;
+
+typedef struct
+{
+  __IO uint32_t alt_setting [USBD_MAX_NUM_INTERFACES + 1];
+  USBD_AUDIO_Buff_TypeDef   out;
+  USBD_AUDIO_Buff_TypeDef   in;
   USBD_AUDIO_ControlTypeDef control;
 } USBD_AUDIO_HandleTypeDef;
 

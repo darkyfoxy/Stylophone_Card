@@ -185,12 +185,22 @@ static int8_t AUDIO_AudioCmd_FS(uint8_t* pbuf, uint32_t size, uint8_t cmd)
   /* USER CODE BEGIN 2 */
   switch(cmd)
   {
-    case AUDIO_CMD_START:
-    	memcpy(usb_buff, pbuf, size);
-    break;
 
-    case AUDIO_CMD_PLAY:
-    break;
+    case AUDIO_CMD_START:
+   break;
+
+   case AUDIO_CMD_STOP:
+
+   break;
+
+   case AUDIO_CMD_PLAY:
+	   memcpy(usb_buff, pbuf, size);
+   break;
+
+   case AUDIO_CMD_RECORD:
+	   memcpy(pbuf, usb_buff, size);
+   break;
+
   }
   return (USBD_OK);
   /* USER CODE END 2 */

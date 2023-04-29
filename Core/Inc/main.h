@@ -61,8 +61,6 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define BUT_2_Pin GPIO_PIN_13
 #define BUT_2_GPIO_Port GPIOC
-#define BUT_3_Pin GPIO_PIN_14
-#define BUT_3_GPIO_Port GPIOC
 #define BUT_4_Pin GPIO_PIN_15
 #define BUT_4_GPIO_Port GPIOC
 #define C_Pin GPIO_PIN_0

@@ -1147,7 +1147,6 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
           if ((epint & USB_OTG_DOEPINT_XFRC) == USB_OTG_DOEPINT_XFRC)
           {
             CLEAR_OUT_EP_INTR(epnum, USB_OTG_DOEPINT_XFRC);
-            //////////////////////////////////////////////////////////////////////////////////////////
             (void)PCD_EP_OutXfrComplete_int(hpcd, epnum);
           }
 
@@ -2353,7 +2352,6 @@ static HAL_StatusTypeDef PCD_EP_OutXfrComplete_int(PCD_HandleTypeDef *hpcd, uint
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
       hpcd->DataOutStageCallback(hpcd, (uint8_t)epnum);
 #else
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
       HAL_PCD_DataOutStageCallback(hpcd, (uint8_t)epnum);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
     }
