@@ -26,7 +26,7 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "usbd_audio.h"
+#include "usbd_audio_stcard.h"
 
 /* USER CODE BEGIN INCLUDE */
 

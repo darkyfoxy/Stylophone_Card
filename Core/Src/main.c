@@ -581,22 +581,16 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : BUT_2_Pin BUT_4_Pin C_Pin Csh_Pin
-                           D_Pin Dsh_Pin E_Pin F_Pin
-                           Dshp_Pin Cp_Pin Ep_Pin B_Pin
-                           Am_Pin Ashm_Pin BUT_1_Pin */
-  GPIO_InitStruct.Pin = BUT_2_Pin|BUT_4_Pin|C_Pin|Csh_Pin
-                          |D_Pin|Dsh_Pin|E_Pin|F_Pin
-                          |Dshp_Pin|Cp_Pin|Ep_Pin|B_Pin
-                          |Am_Pin|Ashm_Pin|BUT_1_Pin;
+  /*Configure GPIO pins : BUT_2_Pin BUT_3_Pin BUT_4_Pin C_Pin
+                           Csh_Pin D_Pin Dsh_Pin E_Pin
+                           F_Pin Dshp_Pin Cp_Pin Ep_Pin
+                           B_Pin Am_Pin Ashm_Pin BUT_1_Pin */
+  GPIO_InitStruct.Pin = BUT_2_Pin|BUT_3_Pin|BUT_4_Pin|C_Pin
+                          |Csh_Pin|D_Pin|Dsh_Pin|E_Pin
+                          |F_Pin|Dshp_Pin|Cp_Pin|Ep_Pin
+                          |B_Pin|Am_Pin|Ashm_Pin|BUT_1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PC14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_14;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED1_Pin LED2_Pin LED3_Pin LED4_Pin */

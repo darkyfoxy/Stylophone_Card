@@ -24,12 +24,11 @@
 #include "usb_device.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
-#include "usbd_audio.h"
+#include "usbd_audio_stcard.h"
 #include "usbd_audio_if.h"
 
 /* USER CODE BEGIN Includes */
 #include "usbd_conf.h"
-#include "usbd_audio.h"
 
 /* USER CODE END Includes */
 

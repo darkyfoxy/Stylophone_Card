@@ -1,19 +1,33 @@
 /**
   ******************************************************************************
-  * @file    usbd_audio.h
-  * @author  MCD Application Team
-  * @brief   header file for the usbd_audio.c file.
+  * @file       usbd_audio_stcard.h
+  * @brief      Header for usbd_audio_stcard.c file.
+  *
+  *
+  * @author     darkyfoxy [*GitHub*](https://github.com/darkyfoxy)
+  * @version    0.01
+  * @date       30.04.2023
+  *
   ******************************************************************************
-  * @attention
+  * @copyright  <h3>Copyright (c) 2023 Pavlov V.</h3>
   *
-  * <h2><center>&copy; Copyright (c) 2015 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+  * in the Software without restriction, including without limitation the rights
+  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  * copies of the Software, and to permit persons to whom the Software is
+  * furnished to do so, subject to the following conditions:
   *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                      www.st.com/SLA0044
+  * The above copyright notice and this permission notice shall be included in all
+  * copies or substantial portions of the Software.
   *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
   ******************************************************************************
   */
 
@@ -109,14 +123,14 @@ extern "C" {
 #define AUDIO_IN_TC                                   0x02U
 
 
-#define AUDIO_OUT_PACKET                              (uint16_t)(((USBD_AUDIO_FREQ * 2U) / 1000U))
+#define AUDIO_PACKET_SIZE                             (uint16_t)(((USBD_AUDIO_FREQ * 2U) / 1000U)) /*edit*/
 #define AUDIO_DEFAULT_VOLUME                          70U
 
 /* Number of sub-packets in the audio transfer buffer. You can modify this value but always make sure
   that it is an even number and higher than 3 */
-#define AUDIO_OUT_PACKET_NUM                          24U
+#define AUDIO_OUT_PACKET_NUM                          24U /*edit*/
 /* Total size of the audio transfer buffer */
-#define AUDIO_TOTAL_BUF_SIZE                          ((uint16_t)(AUDIO_OUT_PACKET * AUDIO_OUT_PACKET_NUM))
+#define AUDIO_TOTAL_BUF_SIZE                          ((uint16_t)(AUDIO_PACKET_SIZE * AUDIO_OUT_PACKET_NUM))
 
 /* Audio Commands enumeration */
 typedef enum
@@ -226,5 +240,3 @@ void USBD_AUDIO_Sync(USBD_HandleTypeDef *pdev, AUDIO_OffsetTypeDef offset);
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
