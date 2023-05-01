@@ -34,6 +34,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_audio_stcard.h"
 #include "usbd_ctlreq.h"
+#include "ecard.h"
 
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
@@ -107,6 +108,12 @@ static void AUDIO_REQ_SetCurrent(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
   * @{
   */
 USBD_AUDIO_HandleTypeDef USBD_AUDIO_Handle;
+
+extern Universal_Buffer_TypeDef SPK_buffer_0;
+extern Universal_Buffer_TypeDef SPK_buffer_1;
+
+extern Universal_Buffer_TypeDef MIC_buffer_0;
+extern Universal_Buffer_TypeDef MIC_buffer_1;
 
 USBD_ClassTypeDef USBD_AUDIO =
 {
@@ -453,13 +460,17 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
       haudio->out.wr_ptr = 0U;
       haudio->out.rd_ptr = 0U;
       haudio->out.buff_enable = 0U;
-      memset ((uint8_t*) haudio->out.buff, 0, AUDIO_TOTAL_BUF_SIZE);
+      haudio->out.buff = (uint8_t *)SPK_buffer_0.buffer;
+      SPK_buffer_0.valid = 0;
+      SPK_buffer_1.valid = 0;
 
       /* Initialize the Audio In Buffer */
       haudio->in.wr_ptr = 0U;
       haudio->in.rd_ptr = 0U;
       haudio->in.buff_enable = 0U;
-      memset ((uint8_t*) haudio->in.buff, 0, AUDIO_TOTAL_BUF_SIZE);
+      haudio->in.buff = (uint8_t *)MIC_buffer_0.buffer;
+      MIC_buffer_0.valid = 0;
+      MIC_buffer_1.valid = 0;
 
       /* Initialize the Audio output Hardware layer */
       if (((USBD_AUDIO_ItfTypeDef*) pdev->pUserData)->Init (USBD_AUDIO_FREQ,

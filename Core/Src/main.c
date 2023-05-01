@@ -56,10 +56,18 @@ USART_HandleTypeDef husart1;
 /* USER CODE BEGIN PV */
 ecard_t ecard = {0};
 
-uint16_t usb_buff [BUFF_SIZE];
+Universal_Buffer_TypeDef DAC_buffer_0;
+Universal_Buffer_TypeDef DAC_buffer_1;
 
-uint32_t saund_buff_0 [BUFF_SIZE];
-uint32_t saund_buff_1 [BUFF_SIZE];
+Universal_Buffer_TypeDef SPK_buffer_0;
+Universal_Buffer_TypeDef SPK_buffer_1;
+
+Universal_Buffer_TypeDef MIC_buffer_0;
+Universal_Buffer_TypeDef MIC_buffer_1;
+
+Universal_Buffer_TypeDef SMP_buffer;
+
+
 uint8_t buf_flaf;
 uint8_t empty_buf_flaf;
 int count;
@@ -124,8 +132,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
   ecard_init(&ecard);
 
-  ecard.init_note_form(&ecard, note_sin_table, &note_table, note_form_size, note_form_index, note_exp_flag, note_exp_index, EXPONENT, temp);
+  ecard.init_note_form(&ecard,\
+                       &note_table,\
+                       note_form_index,\
+                       note_exp_flag,\
+                       note_exp_index,\
+                       EXPONENT,\
+                       temp_buffer);
 
+  ecard.set_note_table(&ecard, note_sin_table, note_form_sin_size);
   ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_0);
 
   empty_buf_flaf = 0;
@@ -136,7 +151,7 @@ int main(void)
 
   uint8_t but_flug = 0x00;
 
-  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, saund_buff_0, 40, DAC_ALIGN_12B_R);
+  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, (uint32_t *)DAC_buffer_0.buffer, BUFF_SIZE, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim5);
   /* USER CODE END 2 */
 
@@ -146,145 +161,153 @@ int main(void)
 
   while (1)
   {
-	  count ++;
-	  if(empty_buf_flaf == 0){
-		  ecard.read_keys(&ecard);
+    count ++;
+    if(empty_buf_flaf == 0)
+    {
+      ecard.read_keys(&ecard);
 
-		  switch (ecard.keys) {
-		    case 0x1:
-		    	note = NOTE_Am;
-		        break;
+      switch (ecard.keys)
+      {
+        case 0x1:
+          note = NOTE_Am;
+          break;
 
-		    case 0x2:
-		    	note = NOTE_Ashm;
-                break;
+        case 0x2:
+          note = NOTE_Ashm;
+          break;
 
-		    case 0x4:
-		    	note = NOTE_Bm;
-				break;
+        case 0x4:
+          note = NOTE_Bm;
+          break;
 
-		    case 0x8:
-		    	note = NOTE_C;
-				break;
+        case 0x8:
+          note = NOTE_C;
+          break;
 
-		    case 0x10:
-		    	note = NOTE_Csh;
-		    	break;
+        case 0x10:
+          note = NOTE_Csh;
+          break;
 
-		    case 0x20:
-		    	note = NOTE_D;
-		    	break;
+        case 0x20:
+          note = NOTE_D;
+          break;
 
-		    case 0x40:
-		    	note = NOTE_Dsh;
-		    	break;
+        case 0x40:
+          note = NOTE_Dsh;
+          break;
 
-		    case 0x80:
-		    	note = NOTE_E;
-		    	break;
+        case 0x80:
+          note = NOTE_E;
+          break;
 
-		    case 0x100:
-		    	note = NOTE_F;
-		    	break;
+        case 0x100:
+          note = NOTE_F;
+          break;
 
-		    case 0x200:
-		    	note = NOTE_Fsh;
-		    	break;
+        case 0x200:
+          note = NOTE_Fsh;
+          break;
 
-		    case 0x400:
-		    	note = NOTE_G;
-		    	break;
+        case 0x400:
+          note = NOTE_G;
+          break;
 
-		    case 0x800:
-		    	note = NOTE_Gsh;
-		    	break;
+        case 0x800:
+          note = NOTE_Gsh;
+          break;
 
-		    case 0x1000:
-		    	note = NOTE_A;
-		    	break;
+        case 0x1000:
+          note = NOTE_A;
+          break;
 
-		    case 0x2000:
-		    	note = NOTE_Ash;
-		    	break;
+        case 0x2000:
+          note = NOTE_Ash;
+          break;
 
-		    case 0x4000:
-		    	note = NOTE_B;
-		    	break;
+        case 0x4000:
+          note = NOTE_B;
+          break;
 
-		    case 0x8000:
-		    	note = NOTE_Cp;
-		    	break;
+        case 0x8000:
+          note = NOTE_Cp;
+          break;
 
-		    case 0x10000:
-		    	note = NOTE_Cshp;
-		    	break;
+        case 0x10000:
+          note = NOTE_Cshp;
+          break;
 
-		    case 0x20000:
-		    	note = NOTE_Dp;
-		    	break;
+        case 0x20000:
+          note = NOTE_Dp;
+          break;
 
-		    case 0x40000:
-		    	note = NOTE_Dshp;
-		    	break;
+        case 0x40000:
+          note = NOTE_Dshp;
+          break;
 
-		    case 0x80000:
-		    	note = NOTE_Ep;
-		    	break;
+        case 0x80000:
+          note = NOTE_Ep;
+          break;
 
-		    default:
-		    	note = PAUSE;
-				break;
-		   }
+        default:
+          note = PAUSE;
+          break;
+      }
 
-		  if (pre_note != note){
-			  if ((pre_note != PAUSE)){
-				  ecard.notes_table->exp_flag[pre_note] = 1;
-			  }
-			  pre_note = note;
-		  }
-		  ecard.notes_table->exp_flag[note] = 0;
+      if (pre_note != note)
+      {
+        if ((pre_note != PAUSE))
+        {
+          ecard.notes_table->exp_flag[pre_note] = 1;
+        }
+        pre_note = note;
+      }
+      ecard.notes_table->exp_flag[note] = 0;
 
-
-
-	    	if(buf_flaf == 0){
-			  ecard.full_buffer(&ecard, saund_buff_1, note, BUFF_SIZE);
-			}
-			else{
-			  ecard.full_buffer(&ecard, saund_buff_0, note, BUFF_SIZE);
-			}
+      ecard.sampl_calculation(&ecard, &SMP_buffer, note, BUFF_SIZE, EXP_TIME_SIZE);
 
 
-	    	ecard.read_button(&ecard);
+      if(buf_flaf == 0)
+      {
+        ecard.prepare_to_DAC(&ecard, &SMP_buffer, &DAC_buffer_1, BUFF_SIZE);
+      }
+      else
+      {
+        ecard.prepare_to_DAC(&ecard, &SMP_buffer, &DAC_buffer_0, BUFF_SIZE);
+      }
 
-	    	if(ecard.buttons != but_flug){
-	    		switch(ecard.buttons){
-	    		case 0x01:
-	    			ecard.set_note_table(&ecard, note_sin_table);
-	    			ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_0);
-	    			break;
 
-	    		case 0x02:
-					ecard.set_note_table(&ecard, note_mndr_table);
-					ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_1);
-					break;
+      ecard.prepare_to_MIC(&ecard, &SMP_buffer, BUFF_SIZE);
 
-	    		case 0x04:
-					ecard.set_note_table(&ecard, note_trin_table);
-					ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_2);
-					break;
+      ecard.read_button(&ecard);
 
-	    		}
+      if(ecard.buttons != but_flug)
+      {
+        switch(ecard.buttons)
+        {
+          case 0x01:
+            ecard.set_note_table(&ecard, note_sin_table, note_form_sin_size);
+            ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_0);
+            break;
 
-	    		but_flug = ecard.buttons;
-	    	}
+          case 0x02:
+            ecard.set_note_table(&ecard, note_mndr_table, note_form_mndr_size);
+            ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_1);
+            break;
 
-		  empty_buf_flaf = 1;
-		  count = 0;
-	  }
+          case 0x04:
+            ecard.set_note_table(&ecard, note_trin_table, note_form_trin_size);
+            ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_2);
+            break;
+        }
+
+        but_flug = ecard.buttons;
+      }
+
+      empty_buf_flaf = 1;
+      count = 0;
+    }
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
-
   }
   /* USER CODE END 3 */
 }

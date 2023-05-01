@@ -59,8 +59,10 @@
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern DMA_HandleTypeDef hdma_dac_ch1;
 /* USER CODE BEGIN EV */
-extern uint32_t saund_buff_0 [BUFF_SIZE];
-extern uint32_t saund_buff_1 [BUFF_SIZE];
+
+extern Universal_Buffer_TypeDef DAC_buffer_0;
+extern Universal_Buffer_TypeDef DAC_buffer_1;
+
 extern DAC_HandleTypeDef hdac1;
 extern uint8_t buf_flaf;
 extern uint8_t empty_buf_flaf;
@@ -210,21 +212,25 @@ void SysTick_Handler(void)
 void DMA1_Channel3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
-	int flag_half_transmit = hdma_dac_ch1.DmaBaseAddress->ISR;
+  int flag_half_transmit = hdma_dac_ch1.DmaBaseAddress->ISR;
 
   /* USER CODE END DMA1_Channel3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_dac_ch1);
+
   /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
-  if ((flag_half_transmit & DMA_ISR_HTIF3_Msk) == 0){
-	  empty_buf_flaf = 0;
-	 if (buf_flaf == 0){
-		  buf_flaf = 1;
-		  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, saund_buff_1, BUFF_SIZE, DAC_ALIGN_12B_R);
-	  }
-	  else{
-		  buf_flaf = 0;
-		  HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, saund_buff_0, BUFF_SIZE, DAC_ALIGN_12B_R);
-	  }
+  if ((flag_half_transmit & DMA_ISR_HTIF3_Msk) == 0)
+  {
+    empty_buf_flaf = 0;
+    if (buf_flaf == 0)
+    {
+      buf_flaf = 1;
+      HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, (uint32_t *)DAC_buffer_1.buffer, BUFF_SIZE, DAC_ALIGN_12B_R);
+    }
+    else
+    {
+      buf_flaf = 0;
+      HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, (uint32_t *)DAC_buffer_0.buffer, BUFF_SIZE, DAC_ALIGN_12B_R);
+    }
   }
   /* USER CODE END DMA1_Channel3_IRQn 1 */
 }

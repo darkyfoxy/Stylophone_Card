@@ -59,58 +59,70 @@
 #define EXP_TIME_SIZE  20
 
 typedef struct _note_table {
-	uint8_t *size;
-	uint8_t *index;
-	uint8_t *exp_flag;
-	uint16_t *exp_index;
-	uint16_t *temp;
+  uint16_t *size;
+  uint16_t *index;
+  uint8_t *exp_flag;
+  uint16_t *exp_index;
+  uint16_t *temp;
 } note_table_t;
+
+typedef struct
+{
+  uint32_t buffer[BUFF_SIZE];
+  uint8_t valid;
+} Universal_Buffer_TypeDef;
 
 
 typedef struct _ecard ecard_t;
 typedef struct _ecard {
-	uint32_t  but_temp;
-	uint32_t  buttons;
+  uint32_t  but_temp;
+  uint32_t  buttons;
 
-	uint32_t  keys;
+  uint32_t  keys;
 
-	const int32_t **table_note_form;
+  const int16_t **table_note_form;
 
-	const float *exp_form;
+  const float *exp_form;
 
-	note_table_t *notes_table;
+  note_table_t *notes_table;
 
-	// Sensor function pointers
-    int  (*read_keys)               (ecard_t *ecard);
+  // Sensor function pointers
+  int  (*read_keys)              (ecard_t *ecard);
 
-    int  (*init_note_form)          (ecard_t *ecard,\
-    		                         const int32_t **table_note_form,\
-									 note_table_t *notes_table,\
-									 uint8_t *size,\
-									 uint8_t *index,\
-									 uint8_t *note_exp_flag,\
-									 uint16_t *note_exp_index,\
-									 const float *exp_form,\
-									 uint16_t *temp);
+  int  (*init_note_form)         (ecard_t *ecard,\
+                                  note_table_t *notes_table,\
+                                  uint16_t *index,\
+                                  uint8_t *note_exp_flag,\
+                                  uint16_t *note_exp_index,\
+                                  const float *exp_form,\
+                                  uint16_t *temp);
 
-    int  (*full_buffer)             (ecard_t *ecard,\
-    		                         uint32_t *p_fubber,\
-									 uint8_t note,\
-									 uint16_t buff_size);
+  int (*sampl_calculation)       (ecard_t *ecard,\
+                                  Universal_Buffer_TypeDef *buffer,\
+                                  uint8_t note,\
+                                  uint16_t buff_size,\
+                                  uint16_t exp_delay);
 
-    int (*set_note_table)           (ecard_t *ecard, const int32_t **table_note_form);
+  int (*prepare_to_DAC)          (ecard_t *ecard,\
+                                  Universal_Buffer_TypeDef *in_buffer,\
+                                  Universal_Buffer_TypeDef *adc_buffer,\
+                                  uint16_t buff_size);
 
-    int (*read_button)              (ecard_t *ecard);
+  int (*prepare_to_MIC)          (ecard_t *ecard,\
+                                  Universal_Buffer_TypeDef *in_buffer,\
+                                  uint16_t buff_size);
 
-    int (*set_leds)                 (ecard_t *ecard, uint8_t leds);
+  int (*set_note_table)          (ecard_t *ecard,\
+                                  const int16_t **table_note_form,\
+                                  uint16_t *size);
+
+  int (*read_button)             (ecard_t *ecard);
+
+  int (*set_leds)                (ecard_t *ecard, uint8_t leds);
 
 } ecard_t;
 
 
-
 int ecard_init(ecard_t *ecard);
-
-
-
 
 #endif /* INC_KEYBOARD_H_ */

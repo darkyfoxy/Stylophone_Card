@@ -168,8 +168,8 @@ typedef struct
 
 typedef struct
 {
-  uint8_t  buff [AUDIO_TOTAL_BUF_SIZE];
-  uint8_t  buff_enable;
+  uint8_t *buff;
+  uint8_t buff_enable;
   uint16_t rd_ptr;
   uint16_t wr_ptr;
 } USBD_AUDIO_Buff_TypeDef;
@@ -177,8 +177,8 @@ typedef struct
 typedef struct
 {
   __IO uint32_t alt_setting [USBD_MAX_NUM_INTERFACES + 1];
-  USBD_AUDIO_Buff_TypeDef   out;
-  USBD_AUDIO_Buff_TypeDef   in;
+  USBD_AUDIO_Buff_TypeDef out;
+  USBD_AUDIO_Buff_TypeDef in;
   USBD_AUDIO_ControlTypeDef control;
 } USBD_AUDIO_HandleTypeDef;
 

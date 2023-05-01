@@ -23,6 +23,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include <string.h>
+#include "ecard.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,7 +104,14 @@
 extern USBD_HandleTypeDef hUsbDeviceFS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
-extern  uint16_t usb_buff [BUFF_SIZE];
+extern USBD_AUDIO_HandleTypeDef USBD_AUDIO_Handle;
+
+extern Universal_Buffer_TypeDef SPK_buffer_0;
+extern Universal_Buffer_TypeDef SPK_buffer_1;
+
+extern Universal_Buffer_TypeDef MIC_buffer_0;
+extern Universal_Buffer_TypeDef MIC_buffer_1;
+
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**
@@ -185,22 +193,42 @@ static int8_t AUDIO_AudioCmd_FS(uint8_t* pbuf, uint32_t size, uint8_t cmd)
   /* USER CODE BEGIN 2 */
   switch(cmd)
   {
-
     case AUDIO_CMD_START:
-   break;
+    break;
 
-   case AUDIO_CMD_STOP:
+    case AUDIO_CMD_STOP:
 
-   break;
+    break;
 
-   case AUDIO_CMD_PLAY:
-	   memcpy(usb_buff, pbuf, size);
-   break;
+    case AUDIO_CMD_PLAY:
+      if(USBD_AUDIO_Handle.out.buff == (uint8_t *)SPK_buffer_0.buffer)
+      {
+        USBD_AUDIO_Handle.out.buff = (uint8_t *)SPK_buffer_1.buffer;
+        SPK_buffer_0.valid = 1;
+        SPK_buffer_1.valid = 0;
+      }
+      else
+      {
+        USBD_AUDIO_Handle.out.buff = (uint8_t *)SPK_buffer_0.buffer;
+        SPK_buffer_0.valid = 0;
+        SPK_buffer_1.valid = 1;
+      }
+      break;
 
-   case AUDIO_CMD_RECORD:
-	   memcpy(pbuf, usb_buff, size);
-   break;
-
+    case AUDIO_CMD_RECORD:
+      if(USBD_AUDIO_Handle.in.buff == (uint8_t *)MIC_buffer_0.buffer)
+      {
+        USBD_AUDIO_Handle.in.buff = (uint8_t *)MIC_buffer_1.buffer;
+        MIC_buffer_0.valid = 1;
+        MIC_buffer_1.valid = 0;
+      }
+      else
+      {
+        USBD_AUDIO_Handle.in.buff = (uint8_t *)MIC_buffer_0.buffer;
+        MIC_buffer_0.valid = 0;
+        MIC_buffer_1.valid = 1;
+      }
+      break;
   }
   return (USBD_OK);
   /* USER CODE END 2 */

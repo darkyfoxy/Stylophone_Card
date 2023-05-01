@@ -119,7 +119,7 @@ void Error_Handler(void);
 /* USER CODE BEGIN Private defines */
 
 #define BUFF_SIZE 1152
-
+#define ARM_MATH_CM4
 
 /* USER CODE END Private defines */
 
