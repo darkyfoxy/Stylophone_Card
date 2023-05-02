@@ -75,6 +75,12 @@ typedef struct
 
 typedef struct _ecard ecard_t;
 typedef struct _ecard {
+  uint32_t  vibrato;
+  uint32_t  vibrato_index;
+  uint32_t  vibrato_temp_index;
+
+  const float *vib_form;
+
   uint32_t  but_temp;
   uint32_t  buttons;
 
@@ -95,6 +101,7 @@ typedef struct _ecard {
                                   uint8_t *note_exp_flag,\
                                   uint16_t *note_exp_index,\
                                   const float *exp_form,\
+								  const float *vib_form,\
                                   uint16_t *temp);
 
   int (*sampl_calculation)       (ecard_t *ecard,\

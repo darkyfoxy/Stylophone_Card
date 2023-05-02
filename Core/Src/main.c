@@ -74,6 +74,8 @@ int count;
 uint8_t note;
 uint8_t pre_note;
 
+uint8_t but_flug;
+uint8_t leds_flug;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -138,10 +140,14 @@ int main(void)
                        note_exp_flag,\
                        note_exp_index,\
                        EXPONENT,\
+					   vibrato,\
                        temp_buffer);
 
-  ecard.set_note_table(&ecard, note_sin_table, note_form_sin_size);
-  ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_0);
+  leds_flug = 0x01;
+
+  ecard.set_note_table(&ecard, note_gitr_table, note_form_gitr_size);
+  //ecard.set_note_table(&ecard, note_sin_table, note_form_sin_size);
+  ecard.set_leds(&ecard, leds_flug);
 
   empty_buf_flaf = 0;
   buf_flaf = 0;
@@ -149,7 +155,8 @@ int main(void)
   pre_note = PAUSE;
   note = PAUSE;
 
-  uint8_t but_flug = 0x00;
+  but_flug = 0x00;
+
 
   HAL_DAC_Start_DMA (&hdac1, DAC_CHANNEL_1, (uint32_t *)DAC_buffer_0.buffer, BUFF_SIZE, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim5);
@@ -260,6 +267,8 @@ int main(void)
           ecard.notes_table->exp_flag[pre_note] = 1;
         }
         pre_note = note;
+
+        ecard.vibrato_index = 0;
       }
       ecard.notes_table->exp_flag[note] = 0;
 
@@ -282,24 +291,34 @@ int main(void)
 
       if(ecard.buttons != but_flug)
       {
+
         switch(ecard.buttons)
         {
           case 0x01:
-            ecard.set_note_table(&ecard, note_sin_table, note_form_sin_size);
-            ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_0);
+            ecard.set_note_table(&ecard, note_gitr_table, note_form_gitr_size);
+            leds_flug &= 0x08;
+            leds_flug |= GPIO_PIN_0;
             break;
 
           case 0x02:
             ecard.set_note_table(&ecard, note_mndr_table, note_form_mndr_size);
-            ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_1);
+            leds_flug &= 0x08;
+            leds_flug |= GPIO_PIN_1;
             break;
 
           case 0x04:
             ecard.set_note_table(&ecard, note_trin_table, note_form_trin_size);
-            ecard.set_leds(&ecard, (uint8_t) GPIO_PIN_2);
+            leds_flug &= 0x08;
+            leds_flug |= GPIO_PIN_2;
+            break;
+
+          case 0x08:
+            leds_flug ^= 0x08;
+            ecard.vibrato ^= 0x01;
             break;
         }
 
+        ecard.set_leds(&ecard, leds_flug);
         but_flug = ecard.buttons;
       }
 

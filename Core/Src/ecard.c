@@ -35,14 +35,56 @@ static int sampl_calculation(ecard_t *ecard,
     uint8_t sampl_index = ecard->notes_table->index[note];
     uint16_t form_size = ecard->notes_table->size[note];
 
-    for (int i = 0; i < buff_size; i++)
+    if (ecard->vibrato == 1)
     {
-      p_buffer[i] = note_form[sampl_index];
-      sampl_index++;
+      const float *temp_vib_form = ecard->vib_form;
+      uint32_t sampl_vib_index = ecard->vibrato_index;
+      uint32_t temp_vib_index = ecard->vibrato_temp_index;
 
-      if(sampl_index == form_size)
+      for (int i = 0; i < buff_size; i++)
+	  {
+    	float note_S = (float) (note_form[sampl_index]);
+		float vib_S = temp_vib_form[sampl_vib_index];
+		float mult = note_S * vib_S;
+
+	    p_buffer[i] = (int16_t)mult;
+	    sampl_index++;
+
+	    if(sampl_index == form_size)
+	    {
+		  sampl_index = 0;
+	    }
+
+	    temp_vib_index++;
+
+		if(temp_vib_index == 15)
+		{
+		  sampl_vib_index++;
+		  temp_vib_index = 0;
+		}
+
+		if(sampl_vib_index == 480)
+		{
+		  sampl_vib_index = 0;
+		  temp_vib_index = 0;
+		}
+
+	  }
+
+      ecard->vibrato_temp_index = temp_vib_index;
+      ecard->vibrato_index = sampl_vib_index;
+    }
+    else
+    {
+      for (int i = 0; i < buff_size; i++)
       {
-        sampl_index = 0;
+        p_buffer[i] = note_form[sampl_index];
+        sampl_index++;
+
+        if(sampl_index == form_size)
+        {
+          sampl_index = 0;
+        }
       }
     }
     ecard->notes_table->index[note] = sampl_index;
@@ -110,9 +152,11 @@ static int init_note_form(ecard_t *ecard,\
                           uint8_t *note_exp_flag,\
                           uint16_t *note_exp_index,\
                           const float *exp_form,\
+						  const float *vib_form,\
                           uint16_t *temp)
 {
   ecard->exp_form = exp_form;
+  ecard->vib_form = vib_form;
 
   ecard->notes_table = notes_table;
 
@@ -261,6 +305,10 @@ int ecard_init(ecard_t *ecard)
 {
   ecard->buttons = 0x00;
   ecard->keys = 0x00;
+
+  ecard->vibrato = 0x00;
+  ecard->vibrato_index = 0x00;
+  ecard->vibrato_temp_index = 0x00;
 
   ecard->read_keys               = read_keys;
   ecard->init_note_form          = init_note_form;
