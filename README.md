@@ -4,7 +4,7 @@ This project shows a stylophone in credit card format.
 
 I saw a project from [Mitxela](https://mitxela.com/projects/stylocard), and wanted to do this project.
 
-Stylophone is based on [STM32L476RG](https://www.st.com/en/microcontrollers-microprocessors/stm32l476rg.html) (with FPU Arm Cortex-M4 MCU 80 MHz with 1 Mbyte of Flash memory) there is a built-in amplifier on [PAM8403](https://amperkot.ru/static/3236/uploads/datasheets/PAM8403_Datasheet.pdf).
+Stylophone is based on [STM32L476RG](https://www.st.com/en/microcontrollers-microprocessors/stm32l476rg.html) (with FPU Arm Cortex-M4 MCU 80 MHz with 1 Mbyte of Flash memory). There is a built-in amplifier on [PAM8403](https://amperkot.ru/static/3236/uploads/datasheets/PAM8403_Datasheet.pdf).
 
 There are also 4 user buttons, 4 user LEDs, a reset button and a power indicator LED.
 
@@ -13,6 +13,7 @@ You can see the [schematic](./Altium_Designer/Schematic.PDF).
 [Demonstration video](https://www.youtube.com/watch?v=Ko7soT-JadY) ![youtube](https://img.shields.io/youtube/views/Ko7soT-JadY?style=social).
 
 ![](./img/card.png)
+
 
 ---
 
