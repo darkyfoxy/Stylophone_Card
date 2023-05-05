@@ -1,17 +1,43 @@
-/*
- * keyboard.h
- *
- *  Created on: 14 февр. 2023 г.
- *      Author: Vlad
- */
+/**
+  ******************************************************************************
+  * @file       ecard.h
+  * @brief      Header for the ecard.c file.
+  *
+  * @author     darkyfoxy [*GitHub*](https://github.com/darkyfoxy)
+  * @version    0.01
+  * @date       05.05.2023
+  *
+  ******************************************************************************
+  * @copyright  <h3>Copyright (c) 2023 Pavlov V.</h3>
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+  * in the Software without restriction, including without limitation the rights
+  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  * copies of the Software, and to permit persons to whom the Software is
+  * furnished to do so, subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in all
+  * copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
+  ******************************************************************************
+  */
 
 #ifndef INC_KEYBOARD_H_
 #define INC_KEYBOARD_H_
 
-#include "stm32l4xx_hal.h"
+/* Private defines -----------------------------------------------------------*/
 
-
-
+/** @defgroup Ecard_KeyBoard Pin numbers to notes
+  * @{
+  */
 #define Am     GPIO_PIN_10
 #define Ashm   GPIO_PIN_11
 #define Bm     GPIO_PIN_9
@@ -33,6 +59,13 @@
 #define Dshp   GPIO_PIN_6
 #define Ep     GPIO_PIN_8
 
+/**
+  * @}
+  */
+
+/** @defgroup Ecard_Note_Number Note numbers
+  * @{
+  */
 #define NOTE_Am        0
 #define NOTE_Ashm      1
 #define NOTE_Bm        2
@@ -55,44 +88,79 @@
 #define NOTE_Ep        19
 #define PAUSE          20
 
+/**
+  * @}
+  */
 
-#define EXP_TIME_SIZE  20
+/** @defgroup Ecard_Contral Settings for ecard
+  * @{
+  */
+#define EXP_TIME_SIZE  20                           /*!< Relative note decay delay */
 
-typedef struct _note_table {
-  uint16_t *size;
-  uint16_t *index;
-  uint8_t *exp_flag;
-  uint16_t *exp_index;
-  uint16_t *temp;
+#define VIBRATO_TIME_SIZE  15                       /*!< Relative vibrato frequency  */
+/**
+  * @}
+  */
+
+
+/* Include HAL library */
+#include "stm32l4xx_hal.h"
+
+/* Private types -------------------------------------------------------------*/
+
+/**
+  * @brief Table with main parameters for notes structure definition
+  */
+typedef struct _note_table
+{
+  uint16_t *size;                                   /*!< Table with note sample sizes */
+
+  uint16_t *index;                                  /*!< Table with current sample index */
+
+  uint8_t *exp_flag;                                /*!< Table with note decay flags */
+
+  uint16_t *exp_index;                              /*!< Table with current decay flags */
+
+  uint16_t *temp;									/*!< Table with temp values */
 } note_table_t;
 
+
+/**
+  * @brief  Main buffer structures definition
+  */
 typedef struct
 {
   uint32_t buffer[BUFF_SIZE];
   uint8_t valid;
 } Universal_Buffer_TypeDef;
 
-
+/**
+  * @brief  Main driver structures definition
+  */
 typedef struct _ecard ecard_t;
-typedef struct _ecard {
-  uint32_t  vibrato;
-  uint32_t  vibrato_index;
-  uint32_t  vibrato_temp_index;
+typedef struct _ecard
+{
+  uint32_t  vibrato;                              /*!< Vibrato on/off flag */
 
-  const float *vib_form;
+  uint32_t  vibrato_index;                        /*!< Vibrato current sample index */
 
-  uint32_t  but_temp;
-  uint32_t  buttons;
+  uint32_t  vibrato_temp_index;                   /*!< Vibrato temp sample index */
 
-  uint32_t  keys;
+  const float *vib_form;                          /*!< Pointer to vibrato form sample */
 
-  const int16_t **table_note_form;
+  const float *exp_form;                          /*!< Pointer to decay form sample */
 
-  const float *exp_form;
+  uint32_t  but_temp;                             /*!< temp buttons status for debounce */
 
-  note_table_t *notes_table;
+  uint32_t  buttons;                              /*!< current buttons status */
 
-  // Sensor function pointers
+  uint32_t  keys;                                 /*!< current keyboard status */
+
+  const int16_t **table_note_form;                /*!< Pointer to table with note samples */
+
+  note_table_t *notes_table;                      /*!< Pointer to table with note parameters */
+
+  //function pointers
   int  (*read_keys)              (ecard_t *ecard);
 
   int  (*init_note_form)         (ecard_t *ecard,\
@@ -130,6 +198,8 @@ typedef struct _ecard {
 } ecard_t;
 
 
+/* Functions prototypes ---------------------------------------------*/
+/* Driver initialization function ***********************************************/
 int ecard_init(ecard_t *ecard);
 
 #endif /* INC_KEYBOARD_H_ */

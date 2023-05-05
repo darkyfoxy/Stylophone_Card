@@ -1,9 +1,37 @@
-/*
- * keyboad.c
- *
- *  Created on: 14 февр. 2023 г.
- *      Author: Vlad
- */
+/**
+  ******************************************************************************
+  * @file       ecard.c
+  * @brief      This file provides functions to the main stylophone card driver.
+  *
+  * @author     darkyfoxy [*GitHub*](https://github.com/darkyfoxy)
+  * @version    0.01
+  * @date       05.05.2023
+  *
+  ******************************************************************************
+  * @copyright  <h3>Copyright (c) 2023 Pavlov V.</h3>
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+  * in the Software without restriction, including without limitation the rights
+  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  * copies of the Software, and to permit persons to whom the Software is
+  * furnished to do so, subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in all
+  * copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+
 #include <stdio.h>
 #include "stm32l4xx_hal.h"
 #include "main.h"
@@ -11,12 +39,27 @@
 #include <string.h>
 #include "arm_math.h"
 
+/* Exported variables --------------------------------------------------------*/
+
 extern Universal_Buffer_TypeDef SPK_buffer_0;
 extern Universal_Buffer_TypeDef SPK_buffer_1;
 
 extern Universal_Buffer_TypeDef MIC_buffer_0;
 extern Universal_Buffer_TypeDef MIC_buffer_1;
 
+
+/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @brief  sampl_calculation
+  *         Calculating note sample
+  * @param  ecard: Pointer to ecard handler
+  * @param  buffer: Pointer to buffer for writing sample
+  * @param  note: Note number
+  * @param  buff_size: Sample buffer size
+  * @param  exp_delay: Relative note decay delay
+  * @retval status
+  */
 static int sampl_calculation(ecard_t *ecard,
                              Universal_Buffer_TypeDef *buffer,\
                              uint8_t note,\
@@ -25,7 +68,7 @@ static int sampl_calculation(ecard_t *ecard,
 {
   int32_t *p_buffer = (int32_t *)buffer->buffer;
 
-  if(note == PAUSE)
+  if(note == PAUSE) /* If key not pressed */
   {
     memset(p_buffer, 0, buff_size*4);
   }
@@ -35,7 +78,7 @@ static int sampl_calculation(ecard_t *ecard,
     uint8_t sampl_index = ecard->notes_table->index[note];
     uint16_t form_size = ecard->notes_table->size[note];
 
-    if (ecard->vibrato == 1)
+    if (ecard->vibrato == 1) /* If vibrato is ON */
     {
       const float *temp_vib_form = ecard->vib_form;
       uint32_t sampl_vib_index = ecard->vibrato_index;
@@ -57,7 +100,7 @@ static int sampl_calculation(ecard_t *ecard,
 
 	    temp_vib_index++;
 
-		if(temp_vib_index == 15)
+		if(temp_vib_index == VIBRATO_TIME_SIZE)
 		{
 		  sampl_vib_index++;
 		  temp_vib_index = 0;
@@ -74,7 +117,7 @@ static int sampl_calculation(ecard_t *ecard,
       ecard->vibrato_temp_index = temp_vib_index;
       ecard->vibrato_index = sampl_vib_index;
     }
-    else
+    else /* If vibrato is OFF */
     {
       for (int i = 0; i < buff_size; i++)
       {
@@ -91,8 +134,7 @@ static int sampl_calculation(ecard_t *ecard,
   }
 
 
-
-
+  /* Decay calculation */
   for (int ni = 0; ni < 20; ni++)
   {
     if (ecard->notes_table->exp_flag[ni] != 0)
@@ -145,7 +187,19 @@ static int sampl_calculation(ecard_t *ecard,
   return 0;
 }
 
-
+/**
+  * @brief  init_note_form
+  *         Start note table initialization
+  * @param  ecard: Pointer to ecard handler
+  * @param  notes_table: Pointer to note table
+  * @param  index: Pointer to table with current note index
+  * @param  note_exp_flag: Pointer to table with decay flag
+  * @param  note_exp_index: Pointer to table with current decay index
+  * @param  exp_form: Pointer to decay form
+  * @param  vib_form: Pointer to vibrato form
+  * @param  temp: Pointer to table with temp values
+  * @retval status
+  */
 static int init_note_form(ecard_t *ecard,\
                           note_table_t *notes_table,\
                           uint16_t *index,\
@@ -169,7 +223,12 @@ static int init_note_form(ecard_t *ecard,\
   return 0;
 }
 
-
+/**
+  * @brief  read_keys
+  *         Read keyboard status
+  * @param  ecard: Pointer to ecard handler
+  * @retval status
+  */
 static int read_keys(ecard_t *ecard)
 {
   ecard->keys = 0;
@@ -192,7 +251,12 @@ static int read_keys(ecard_t *ecard)
   return 0;
 }
 
-
+/**
+  * @brief  read_button
+  *         Read buttons status
+  * @param  ecard: Pointer to ecard handler
+  * @retval status
+  */
 static int read_button(ecard_t *ecard)
 {
   uint32_t port_c = ~(uint32_t)GPIOC->IDR;
@@ -216,6 +280,13 @@ static int read_button(ecard_t *ecard)
   return 0;
 }
 
+/**
+  * @brief  set_leds
+  *         Set leds status
+  * @param  ecard: Pointer to ecard handler
+  * @param  leds: Leds status
+  * @retval status
+  */
 static int set_leds(ecard_t *ecard, uint8_t leds)
 {
   GPIOA->ODR = leds;
@@ -223,7 +294,14 @@ static int set_leds(ecard_t *ecard, uint8_t leds)
   return 0;
 }
 
-
+/**
+  * @brief  set_note_table
+  *         Set style of note samples
+  * @param  ecard: Pointer to ecard handler
+  * @param  table_note_form: Pointer to a table with samples
+  * @param  size: Pointer to a table with sample sizes
+  * @retval status
+  */
 static int set_note_table(ecard_t *ecard, const int16_t **table_note_form, uint16_t *size)
 {
   ecard->table_note_form = table_note_form;
@@ -233,6 +311,15 @@ static int set_note_table(ecard_t *ecard, const int16_t **table_note_form, uint1
   return 0;
 }
 
+/**
+  * @brief  prepare_to_DAC
+  *         Prepare sample to write to DAC
+  * @param  ecard: Pointer to ecard handler
+  * @param  in_buffer: Pointer to buffer for read sample
+  * @param  adc_buffer: Pointer to buffer for writing sample
+  * @param  buff_size: Sample buffer size
+  * @retval status
+  */
 static int prepare_to_DAC(ecard_t *ecard,\
 	                      Universal_Buffer_TypeDef *in_buffer,\
 	                      Universal_Buffer_TypeDef *adc_buffer,\
@@ -241,7 +328,7 @@ static int prepare_to_DAC(ecard_t *ecard,\
   int32_t *in_buff = (int32_t *)in_buffer->buffer;
   uint32_t *adc_buff = adc_buffer->buffer;
 
-  if(SPK_buffer_0.valid == 1)
+  if(SPK_buffer_0.valid == 1)  /* IF USB speaker is available */
   {
     int16_t *spk_buff = (int16_t *)SPK_buffer_0.buffer;
 
@@ -251,7 +338,7 @@ static int prepare_to_DAC(ecard_t *ecard,\
     }
     SPK_buffer_0.valid = 0;
   }
-  else if(SPK_buffer_1.valid == 1)
+  else if(SPK_buffer_1.valid == 1) /* IF USB speaker is available */
   {
     int16_t *spk_buff = (int16_t *)SPK_buffer_1.buffer;
 
@@ -261,7 +348,7 @@ static int prepare_to_DAC(ecard_t *ecard,\
     }
     SPK_buffer_1.valid = 0;
   }
-  else
+  else /* IF USB speaker is not available */
   {
     for (int i = 0; i < buff_size; i++)
     {
@@ -271,6 +358,14 @@ static int prepare_to_DAC(ecard_t *ecard,\
   return 0;
 }
 
+/**
+  * @brief  prepare_to_MIC
+  *         Prepare sample and write to USB microphone buffers
+  * @param  ecard: Pointer to ecard handler
+  * @param  in_buffer: Pointer to buffer for read sample
+  * @param  buff_size: Sample buffer size
+  * @retval status
+  */
 static int prepare_to_MIC(ecard_t *ecard,\
 	                      Universal_Buffer_TypeDef *in_buffer,\
 	                      uint16_t buff_size)
@@ -278,7 +373,7 @@ static int prepare_to_MIC(ecard_t *ecard,\
 
   int32_t *in_buff = (int32_t *)in_buffer->buffer;
 
-  if(MIC_buffer_0.valid == 1)
+  if(MIC_buffer_0.valid == 1) /* IF USB microphone is available */
   {
     int16_t *spk_buff = (int16_t *)MIC_buffer_0.buffer;
 
@@ -301,6 +396,14 @@ static int prepare_to_MIC(ecard_t *ecard,\
   return 0;
 }
 
+/* Functions ---------------------------------------------------------------------*/
+
+/**
+  * @brief  ecard_init
+  *         Initialization main driver structure
+  * @param  ecard: Pointer to ecard handler
+  * @retval status
+  */
 int ecard_init(ecard_t *ecard)
 {
   ecard->buttons = 0x00;
@@ -310,9 +413,10 @@ int ecard_init(ecard_t *ecard)
   ecard->vibrato_index = 0x00;
   ecard->vibrato_temp_index = 0x00;
 
+  /* Function initialization */
   ecard->read_keys               = read_keys;
   ecard->init_note_form          = init_note_form;
-  ecard->set_note_table       = set_note_table;
+  ecard->set_note_table          = set_note_table;
 
   ecard->sampl_calculation       = sampl_calculation;
   ecard->prepare_to_DAC          = prepare_to_DAC;

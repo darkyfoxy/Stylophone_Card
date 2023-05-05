@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file       usbd_audio_stcard.c
-  * @brief      This file provides functions to USB driver.
+  * @brief      This file provides functions to the USB driver.
   *
   * @author     darkyfoxy [*GitHub*](https://github.com/darkyfoxy)
   * @version    0.01

@@ -146,7 +146,7 @@ int main(void)
   leds_flug = 0x01;
 
   ecard.set_note_table(&ecard, note_gitr_table, note_form_gitr_size);
-  //ecard.set_note_table(&ecard, note_sin_table, note_form_sin_size);
+
   ecard.set_leds(&ecard, leds_flug);
 
   empty_buf_flaf = 0;

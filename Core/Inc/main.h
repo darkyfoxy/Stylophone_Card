@@ -118,8 +118,17 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
-#define BUFF_SIZE 1152
-#define ARM_MATH_CM4
+
+/** @defgroup Ecard_Contral Settings for ecard
+  * @{
+  */
+#define BUFF_SIZE 1152                        /*!< Buffer size in uint32_t */
+
+#define ARM_MATH_CM4                          /*!< Define for DSP library */
+
+/**
+  * @}
+  */
 
 /* USER CODE END Private defines */
 

@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file       usbd_audio_stcard.h
-  * @brief      Header for usbd_audio_stcard.c file.
+  * @brief      Header for the usbd_audio_stcard.c file.
   *
   *
   * @author     darkyfoxy [*GitHub*](https://github.com/darkyfoxy)
